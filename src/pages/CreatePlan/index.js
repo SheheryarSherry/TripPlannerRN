@@ -13,6 +13,7 @@ import { PrimaryButton } from '../../components';
 import MaskInput from 'react-native-mask-input';
 import { Table, TableWrapper, Row, Rows, Col } from 'react-native-table-component';
 import Modal from "react-native-modal";
+import DialogInput from 'react-native-dialog-input-custom';
 
 const { width, height } = Dimensions.get('window');
 
@@ -146,7 +147,8 @@ class CreatePlan extends Component {
             this.setState({ 'emailValidation': '' })
         }
     }
-    handleProceed = event => {
+    handleProceed = value => {
+        console.log(value, ' saved password')
         API.saveTrip({
             from: this.state.origin,
             to: this.state.destination,
@@ -161,12 +163,11 @@ class CreatePlan extends Component {
             budget_1: this.state.budget_1,
             budget_2: this.state.budget_2,
             budget_3: this.state.budget_3,
-            password: this.state.password
+            password: value
         })
             .then(res => {
-
-                this.props.navigation.navigate('Home', { ...userI })
-                const savedTripIds = res.data.trips;
+                console.log(res.data)
+                this.props.navigation.navigate('Home')
                 // Tells react router to change url
                 // this.props.history.push(`/trip-plans/${savedTripIds[savedTripIds.length - 1]}`);
             })
@@ -211,7 +212,8 @@ class CreatePlan extends Component {
             lRoomMax,
             lRoomMin,
             dRoomMin,
-            dRoomMax } = this.state;
+            dRoomMax,
+            password } = this.state;
 
         let sliceOrigin = origin.split(',', 1)
         let sliceDestination = destination.split(',', 1)
@@ -220,7 +222,7 @@ class CreatePlan extends Component {
         const rooms = NoOfRooms
         const nights = NoOfNights
         const consumePerliter = (distance / milage) * fuelRate;
-        console.log(sRoomMin, sRoomMax, lRoomMin, lRoomMax, dRoomMin, dRoomMax, nights, rooms, milage, distance, fuelRate, consumePerliter)
+        console.log(sRoomMin, sRoomMax, lRoomMin, lRoomMax, dRoomMin, dRoomMax, nights, rooms, milage, distance, fuelRate, consumePerliter, password)
         const SRatesMin = consumePerliter + ((sRoomMin * nights) * rooms)
         const LRatesMin = consumePerliter + ((lRoomMin * nights) * rooms)
         const DRatesMin = consumePerliter + ((dRoomMin * nights) * rooms)
@@ -348,10 +350,10 @@ class CreatePlan extends Component {
                                         />
                                     </View>
                                 </ProgressStep>
-                                <ProgressStep keyboardType='number-pad' nextBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} previousBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} label="Stay">
+                                <ProgressStep nextBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} previousBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} label="Stay">
                                     <View style={{ alignItems: 'center', marginHorizontal: 10 }}>
                                         <Text style={{ fontSize: 20, textAlign: 'center', fontFamily: 'Trebuchet MS' }}>How many nights would you like on your trip? *</Text>
-                                        <Input type="text" style={{ marginTop: 30 }} value={this.state.NoOfNights} onChangeText={(value) => {
+                                        <Input keyboardType='number-pad' type="text" style={{ marginTop: 30 }} value={this.state.NoOfNights} onChangeText={(value) => {
                                             this.setState({ 'NoOfNights': value })
                                         }}
                                             placeholder='Type your answer here...'
@@ -434,7 +436,30 @@ class CreatePlan extends Component {
                                                 </ListItem>
                                             ))}
                                         </View> */}
-                                    <Modal isVisible={isModalVisible} onBackdropPress={() => this.setState({ 'isModalVisible': false })}>
+                                    <DialogInput dialogIsVisible={isModalVisible}
+                                        title={"Would you like to save your Trip?"}
+                                        titleStyle={{ color: '#182166', fontSize: 22 }}
+                                        subtitle='Enter a password to register'
+                                        subTitleStyle={{ color: 'grey', fontSize: 17 }}
+                                        placeholderInput={"Type your password..."}
+                                        secureTextEntry={true}
+                                        textInputProps={{ secureTextEntry: true }}
+                                        textCancelStyle={{ color: '#fb5b5a', fontSize: 15 }}
+                                        submitTextStyle={{ color: '#fb5b5a', fontSize: 15 }}
+                                        textInputStyle={{
+                                            backgroundColor: '#fafafa',
+                                            borderBottomColor: 'white'
+
+                                        }}
+                                        submitInput={(inputText) => {
+
+                                            this.handleProceed(inputText)
+                                        }}
+                                        cancelButtonText="CANCEL"
+                                        submitButtonText="SAVE"
+                                        closeDialogInput={() => { this.setState({ 'isModalVisible': false }) }}>
+                                    </DialogInput>
+                                    {/* <Modal isVisible={isModalVisible} onBackdropPress={() => this.setState({ 'isModalVisible': false })}>
                                         <View style={{ flex: 1, alignContent: 'center' }}>
                                             <View style={{
                                                 height: 300, backgroundColor: 'white',
@@ -483,10 +508,10 @@ class CreatePlan extends Component {
                                             </View>
 
                                         </View>
-                                    </Modal>
+                                    </Modal> */}
                                     <View >
                                         <Table borderStyle={{ borderWidth: 1 }}>
-                                            <Row data={this.state.tableHead} flexArr={[0.8, 0.5, 0.5, 2]} style={styles.head} textStyle={styles.text} />
+                                            <Row data={this.state.tableHead} flexArr={[1, 0.8, 0.5, 0.5, 2]} style={styles.head} textStyle={styles.text} />
                                             <TableWrapper style={styles.wrapper}>
                                                 <Col data={this.state.tableTitle} style={styles.title} heightArr={[40, 40]} textStyle={styles.text} />
                                                 <Rows data={tblData} flexArr={[0.8, 0.5, 0.5, 2]} style={styles.row} textStyle={styles.text} />
@@ -551,7 +576,7 @@ const styles = StyleSheet.create({
     wrapper: { flexDirection: 'row' },
     title: { flex: 1, backgroundColor: '#f6f8fa', width: 300 },
     row: { height: 40 },
-    text: { textAlign: 'center' }
+    text: { textAlign: 'center', fontSize: 10 }
 });
 
 export default CreatePlan;

@@ -21,7 +21,7 @@ export default {
     return axios.get(`${baseURL}/api/yelp/businesses/${location}`);
   },
   saveTrip: function(tripData) {
-    return axios.post(`${baseURL}/setInfo(post)`, tripData);
+    return axios.post(`${baseURL}/setInfo`, tripData);
   },
   updateTrip: function(tripId, tripData) {
     return axios.put(`${baseURL}/api/trips/${tripId}`, tripData)

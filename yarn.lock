@@ -5415,6 +5415,16 @@ react-native-codegen@^0.0.6:
     jscodeshift "^0.11.0"
     nullthrows "^1.1.1"
 
+react-native-dialog-input-custom@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/react-native-dialog-input-custom/-/react-native-dialog-input-custom-1.0.3.tgz#e25e2ebcdbe957be6a08a32383390e1d4aa181d2"
+  integrity sha512-FGANx9V+sGqLHIQ7OlgUA5xZ3NayQ/dl92evYS+dCx3IX7re7rXsi+BTLyhCcDu59Y7n8wSePQ3X+HgfOS7TzQ==
+
+react-native-dialog-input@^1.0.8:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/react-native-dialog-input/-/react-native-dialog-input-1.0.8.tgz#6813d3b158bbb85d83a94310f38695d9f2b02682"
+  integrity sha512-W9YNMt6r+rUUMDEkOR1WMuGfSJw97ujB8H1xp8TjJTOnYVSlsf4aEP6t+J8tVk3XZaDcTawXgDjxH6E1WVWRog==
+
 react-native-elements@^3.4.2:
   version "3.4.2"
   resolved "https://registry.yarnpkg.com/react-native-elements/-/react-native-elements-3.4.2.tgz#66602be9c5e0e0a2a831913adec80ff6518d1ee2"

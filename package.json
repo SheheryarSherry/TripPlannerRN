@@ -21,6 +21,8 @@
     "react": "17.0.1",
     "react-native": "0.64.2",
     "react-native-animated-loader": "^0.0.9",
+    "react-native-dialog-input": "^1.0.8",
+    "react-native-dialog-input-custom": "^1.0.3",
     "react-native-elements": "^3.4.2",
     "react-native-gesture-handler": "^1.10.3",
     "react-native-google-places-autocomplete": "^2.4.1",
