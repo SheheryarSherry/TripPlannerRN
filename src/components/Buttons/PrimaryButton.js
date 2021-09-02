@@ -6,8 +6,8 @@ const PrimaryButton = ({ onPress, btnText, isLoading , disabled }) => {
     const width = Dimensions.get('screen').width
     const btnSize = 48
     return (
-        <TouchableOpacity
-            onPress={onPress} disabled={disabled}>
+        <TouchableOpacity 
+            onPress={onPress} disabled={isLoading ?true : disabled}>
             <View style={{
                 height: btnSize,
                 flexDirection: 'row',

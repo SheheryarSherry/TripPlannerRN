@@ -2,7 +2,7 @@ import React from 'react'
 import { StyleSheet, Image, Text, View, Dimensions, ImageBackground, ScrollView } from 'react-native'
 import { defaultBackground, defaultPadding, blueColor, btnColor } from '../../utils/theme';
 import { RoundedButton, TitleText, SubtitleText, Avatar, EntertainmentCard, PrimaryButton } from '../../components';
-
+import BudgetCard from '../../components/Card/BudgetCard'
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
 
@@ -32,14 +32,15 @@ const Plan = ({ navigation, route }) => {
         // dateTrip,
         // cityName,
         // cityImage,
-        date,
-        tripName,
-        origin,
-        destination,
-        budget,
-        rooms,
-        days,
-        VehicleType,
+        created_at,
+        from,
+        to,
+        budget_1,
+        budget_2,
+        budget_3,
+        room,
+        stay,
+        vehicle,
      } = route.params
 
     return (
@@ -108,14 +109,14 @@ const Plan = ({ navigation, route }) => {
                         fontSize: 16,
                         fontWeight: 'bold',
                         top: 40,
-                    }}>{new Date(date).toString()}</Text>
+                    }}>{new Date(created_at).toString()}</Text>
                     {/* City text */}
                     <Text style={{
                         color: 'white',
                         fontSize: 48,
                         fontWeight: 'bold',
                         top: 40,
-                    }}>{origin}</Text>
+                    }}>{to}</Text>
 
                 </View>
             </ImageBackground>
@@ -140,7 +141,7 @@ const Plan = ({ navigation, route }) => {
                         showsHorizontalScrollIndicator={false}
                         style={{ marginStart: defaultPadding }}>
                         {
-                             <TitleText text={VehicleType} size={14} />
+                             <TitleText text={vehicle} size={14} />
                             // friendsList.map((friend, index) => {
                             //     return (
                             //         <View key={index} style={{
@@ -183,7 +184,7 @@ const Plan = ({ navigation, route }) => {
                                             marginStart: defaultPadding / 2,
                                             marginEnd: defaultPadding 
                                         }}>
-                                        <EntertainmentCard text={destination} image={'https://cdn.pixabay.com/photo/2018/02/17/22/15/water-3161063_960_720.jpg'} />
+                                        <EntertainmentCard text={to} image={'https://cdn.pixabay.com/photo/2018/02/17/22/15/water-3161063_960_720.jpg'} />
                                     </View>
                               
                         }
@@ -196,22 +197,41 @@ const Plan = ({ navigation, route }) => {
             <View
                 style={{
                     backgroundColor: defaultBackground,
-                    paddingHorizontal: defaultPadding,
-                    paddingBottom: defaultPadding
+                    paddingVertical: defaultPadding,
                 }}>
-                <SubtitleText text="Budgets" />
-                <View style={{
+                 <View style={{
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    marginTop: 5,
-                    marginBottom: 25
+                    paddingHorizontal: defaultPadding
                 }}>
-                    <TitleText text={"PKR"+ budget +"/-"} size={14} />
+                    <SubtitleText text="Budgets" /> 
                 </View>
-                <PrimaryButton btnText="View on Map" onPress={() => console.log('pressed')} />
+                <View style={{ marginTop: 10 }}>
+                    <ScrollView
+                        horizontal={true}
+                        showsHorizontalScrollIndicator={false}>
+                        {
+                           
+                                    <View  
+                                        style={{
+                                            flexDirection:'row',
+                                            marginStart: defaultPadding / 2,
+                                            marginEnd: defaultPadding 
+                                        }}>
+                                        <BudgetCard planData={{budget:budget_1,type:'Standard'}} />
+                                        <BudgetCard planData={{budget:budget_2,type:'Luxury'}} />
+                                        <BudgetCard planData={{budget:budget_3,type:'Deluxe'}} />
+                                    </View>
+                              
+                        }
+                    </ScrollView>
+                </View>
             </View>
             {/* END BUDGET SECTION */}
+            <View style={{marginHorizontal:30 , marginVertical:20}}>
+                <PrimaryButton btnText="View on Map" onPress={() => console.log('pressed')} />
+            </View>
         </ScrollView>
     )
 }

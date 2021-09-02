@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^5.15.3",
+    "@react-native-community/async-storage": "^1.12.1",
     "@react-native-community/geolocation": "^2.0.2",
     "@react-native-community/masked-view": "^0.1.11",
     "@react-navigation/bottom-tabs": "^5.11.11",
@@ -21,6 +22,7 @@
     "react": "17.0.1",
     "react-native": "0.64.2",
     "react-native-animated-loader": "^0.0.9",
+    "react-native-dialog": "^8.2.0",
     "react-native-dialog-input": "^1.0.8",
     "react-native-dialog-input-custom": "^1.0.3",
     "react-native-elements": "^3.4.2",
@@ -38,7 +40,8 @@
     "react-native-safe-area-context": "^3.2.0",
     "react-native-screens": "^3.4.0",
     "react-native-table-component": "^1.2.1",
-    "react-native-vector-icons": "^8.1.0"
+    "react-native-vector-icons": "^8.1.0",
+    "react-native-webview": "^11.13.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

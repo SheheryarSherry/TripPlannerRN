@@ -21,7 +21,6 @@ import geolocation from '@react-native-community/geolocation';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { ScrollView } from 'react-native-gesture-handler';
 
-
 const { width, height } = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
 const LATITUDE = 13.076349;
@@ -63,6 +62,7 @@ class Trip extends Component {
             km: 0,
             mapOrigin: '',
             mapDestination: '',
+            btnDisabled:true,
             vehicleData: [
                 {
                     label: 'Sedan',
@@ -278,6 +278,7 @@ class Trip extends Component {
                                                     query={{
                                                         key: GOOGLE_MAPS_APIKEY,
                                                         language: 'en',
+                                                        components:'country:pk'
                                                     }}
                                                 />
                                             </View>
@@ -308,7 +309,9 @@ class Trip extends Component {
                                                 
                                                 onPress={(data, details = null) => {
                                                     // 'details' is provided when fetchDetails = true
+
                                                     this.setState({ to: data.description })
+                                                    this.setState({'btnDisabled':false})
                                                     this.setState({ mapOrigin: this.state.from })
                                                     this.setState({ mapDestination: data.description })
                                                     console.log(to);
@@ -316,17 +319,18 @@ class Trip extends Component {
                                                 query={{
                                                     key: GOOGLE_MAPS_APIKEY,
                                                     language: 'en',
+                                                    components:'country:pk'
                                                 }}
                                             />
                                         </View>
                                         <View>
 
-                                        <PrimaryButton onPress={() => this.props.navigation.navigate('CreatePlan',
+                                        <PrimaryButton   onPress={() => this.props.navigation.navigate('CreatePlan',
                                             {
                                                 origin: this.state.mapOrigin,
                                                 destination: this.state.mapDestination,
                                                 Km: this.state.km
-                                            })} disabled={to==null?true:false}
+                                            })} disabled={ this.state.btnDisabled}
                                             btnText={'Set up your trip to '+this.state.mapDestination.split(',',1)} isLoading={isLoading} />
                                         </View>
                                     </View>

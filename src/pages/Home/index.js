@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import PTRView from 'react-native-pull-to-refresh';
+import AsyncStorage from '@react-native-community/async-storage';
 import {
     ScrollView,
     View,
-    TouchableOpacity,
+    TouchableOpacity,Text
 } from 'react-native';
 import {
     TitleText,
@@ -58,31 +59,55 @@ const Home = ({  navigation }) => {
     // SAVE INDEX INDEX MENU TAB
     const [indexTab, setIndexTab] = useState(0);
     const [planListItems, setplanListItems] = useState([]);
-    useEffect(()=>{
-        getAllTrips();
-        
-        getAllvehicles();
+    const [userId, setUserId]= useState();
+    const [Token, setToken] = useState();
+    const [userName,setUserName] = useState('')
+    const [userLoggedIn,setUserLoggedIn] = useState(false)
+    const [listNews,setListNews ] = useState([])
+    useEffect(async()=>{
+        AsyncStorage.getItem('userData').then(result=>{
+            result == null ? setUserLoggedIn(false): setUserLoggedIn(true)
+        })
+        getUserInfo();
+        getNews();
+         getAllTrips();
+         
     },[])
-    
-    const getAllTrips = async()=>{
-        console.log(userId)
-        const userId = '612271fb6816ce08045e3852'
-        API.getAllTripsByUser(userId)
-          .then(res => {
-            console.log(res.data.trips);
-             setplanListItems( res.data.trips );
-          })
-          .catch(err => console.log('Catched',err))
+    const getUserInfo = ()=>{
+        console.log('hello')
+        AsyncStorage.getItem('userData').then(result=>{
+            console.log(result)
+            setUserId(result)
+        })
+        AsyncStorage.getItem('userToken').then(result=>{
+            setToken(result)
+        })
+        AsyncStorage.getItem('userName').then(result=>{
+            setUserName(result)
+        })
+        getAllTrips();
+
     }
-    const getAllvehicles = async()=>{
-        const userId = '1';
-        API.getVehicles()
+    const getAllTrips =async ()=>{
+       await API.getAllTripsByUser({
+            user_id:userId,
+            api_token:Token
+        })
           .then(res => {
             console.log(res.data);
-            // this.setState({ allTrips: res.data });
+            setplanListItems( res.data );
           })
           .catch(err => console.log('Catched',err))
     }
+    const getNews = async()=>{
+        API.getNews()
+          .then(res => {
+            setListNews( res.data );
+            
+          })
+          .catch(err => console.log('Catched',err))
+    }
+    
     return (
         <PTRView onRefresh={getAllTrips} >
 
@@ -99,8 +124,29 @@ const Home = ({  navigation }) => {
                 justifyContent: 'space-between',
                 alignItems: 'center',
             }} >
-                <TitleText text="My Trips" />
-                {/* <RoundedButton icon="search" /> */}
+                <TitleText text="News" />
+                {
+                    userLoggedIn ?
+                    <View style={{flexDirection:'row'}}>
+                        <Text style={{padding:2 ,fontSize:16}}>Hi! {userName}</Text>
+                        <RoundedButton icon="logout" onPress={()=>{
+                            AsyncStorage.removeItem('userData')
+                            AsyncStorage.removeItem('userName')
+                            AsyncStorage.removeItem('userEmail')
+                            AsyncStorage.removeItem('userToken')
+                            navigation.navigate('Login2')
+                        }} />
+                        
+                    </View>
+                    : 
+                    <View style={{flexDirection:'row'}}>
+                        <Text style={{padding:2 ,fontSize:16}}>Hi! GuestUser123</Text>
+                        <RoundedButton icon="login" onPress={()=>{
+                            navigation.navigate('Login')
+                        }} />
+                        
+                    </View>
+                }
             </View>
 
             {/* TAB BUTTON */}
@@ -130,16 +176,20 @@ const Home = ({  navigation }) => {
                     height: 200
                 }}>
                 {
-                    listCountries.map((country, index) => {
+                    listNews.map((News, index) => {
                         return (
+                            <TouchableOpacity
+                            onPress={() => navigation.navigate('Blog', { ...News })}
+                            key={index}>
                             <View
                                 key={index}
                                 style={{
                                     marginStart: (index === 0) ? defaultPadding : 0,
                                     marginEnd: defaultPadding
                                 }}>
-                                <CountryCard countryName={country.name} dateTrip={country.dateTrip} countryImage={country.image} />
+                                <CountryCard countryName={News.heading} dateTrip={''} countryImage={News.image} />
                             </View>
+                            </TouchableOpacity>
                         )
                     })
                 }

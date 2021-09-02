@@ -3,8 +3,8 @@ import axios from 'axios';
 
 const baseURL = 'https://startyourownstory.com/api' 
 export default {
-  getAllTripsByUser: function(userId) {
-    return axios.get(`${baseURL}/api/users/${userId}`);
+  getAllTripsByUser: function(userInfo) {
+    return axios.post(`${baseURL}/getInfo`,userInfo);
   },
   getAllTripsByDestination: function(destination) {
     return axios.get(`${baseURL}/api/trips`, {
@@ -14,8 +14,8 @@ export default {
     });
   },
 
-  getTrip: function(tripId) {
-    return axios.get(`${baseURL}/api/trips/${tripId}`);
+  getNews: function() {
+    return axios.get(`${baseURL}/getNews`);
   },
   getYelpBusinesses: function (location) {
     return axios.get(`${baseURL}/api/yelp/businesses/${location}`);
@@ -33,7 +33,7 @@ export default {
     return axios.post(`${baseURL}/api/users/register`, userData);   
   },
   Login: function(userInfo){
-    return axios.post(`${baseURL}/api/users/login`, userInfo);
+    return axios.post(`${baseURL}/login`, userInfo);
   },
   IsLoggedIn:function(){
     return axios.get( `${baseURL}/api/users/home`)

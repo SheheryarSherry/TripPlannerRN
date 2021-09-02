@@ -7,13 +7,12 @@ import { Input, Icon, ListItem, Image } from 'react-native-elements';
 import API from '../../API/Api'
 import { ScrollView } from 'react-native-gesture-handler';
 import { ProgressSteps, ProgressStep } from 'react-native-progress-steps';
-import { createStackNavigator, createAppContainer } from 'react-navigation';
 import RadioButtonRN from 'radio-buttons-react-native';
-import { PrimaryButton } from '../../components';
 import MaskInput from 'react-native-mask-input';
 import { Table, TableWrapper, Row, Rows, Col } from 'react-native-table-component';
-import Modal from "react-native-modal";
-import DialogInput from 'react-native-dialog-input-custom';
+import AsyncStorage from '@react-native-community/async-storage';
+// import DialogInput from 'react-native-dialog-input-custom';
+import Dialog from "react-native-dialog";
 
 const { width, height } = Dimensions.get('window');
 
@@ -34,6 +33,9 @@ class CreatePlan extends Component {
             roomRent: 0,
             fuelRate: 0,
             emailValidation: '',
+            vehicleValidation:'',
+            roomValidation:'',
+            nightValidation:'',
             origin: this.props.route.params.origin,
             destination: this.props.route.params.destination,
             distance: this.props.route.params.Km,
@@ -42,6 +44,7 @@ class CreatePlan extends Component {
             VehicleType: '',
             username: '',
             email: '',
+            isdisabled: false,
             phone: '',
             userId: '',
             sRoomMin: 0,
@@ -59,16 +62,50 @@ class CreatePlan extends Component {
             tableHead: ['', 'Vehicle', 'Rooms', 'Nigths', 'Budget'],
             tableTitle: ['Standard', 'Luxury', 'Deluxe'],
             tableData: [
-            ]
+            ],
+            IsLoggedIn: false,
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleRoomChange = this.handleRoomChange.bind(this);
         this.handelRegister = this.handelRegister.bind(this);
     }
     componentDidMount() {
+        this.isLoggedInUser()
+        this.setEmail()
+        this.setName()
         this.getAllvehicles()
         this.getFuel()
         this.getRoom()
+    }
+    isLoggedInUser() {
+        AsyncStorage.getItem('userToken').then((value) => {
+            console.log(value === null ? ":: NO USER FOUND ::" : "USER FOUND")
+            if (value === null) {
+                this.setState({ 'IsLoggedIn': false })
+                this.setState({ 'isdisabled': false })
+            } else {
+                this.setState({ 'IsLoggedIn': true })
+                this.setState({ 'isdisabled': true })
+            }
+        })
+    }
+    setEmail() {
+        AsyncStorage.getItem('userEmail').then((value) => {
+            console.log(value === null ? ":: NO USER FOUND ::" : "USER FOUND")
+            if (value === null) {
+            } else {
+                this.setState({ 'email': value })
+            }
+        })
+    }
+    setName() {
+        AsyncStorage.getItem('userName').then((value) => {
+            console.log(value === null ? ":: NO USER FOUND ::" : "USER FOUND")
+            if (value === null) {
+            } else {
+                this.setState({ 'username': value })
+            }
+        })
     }
     handleChange(event) {
         this.setState({ NoOfNights: event.target.value });
@@ -147,8 +184,7 @@ class CreatePlan extends Component {
             this.setState({ 'emailValidation': '' })
         }
     }
-    handleProceed = value => {
-        console.log(value, ' saved password')
+    handleProceed =() => {
         API.saveTrip({
             from: this.state.origin,
             to: this.state.destination,
@@ -163,7 +199,7 @@ class CreatePlan extends Component {
             budget_1: this.state.budget_1,
             budget_2: this.state.budget_2,
             budget_3: this.state.budget_3,
-            password: value
+            password: this.state.password
         })
             .then(res => {
                 console.log(res.data)
@@ -333,66 +369,88 @@ class CreatePlan extends Component {
                         </View>
                         <View style={{ flex: 1, marginTop: 30, padding: 30 }}>
                             <ProgressSteps {...progressStepsStyle} >
-                                <ProgressStep nextBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} label="Vehicle">
+                                <ProgressStep nextBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} label="Vehicle" nextBtnDisabled={this.state.VehicleType==''?true : false}>
                                     <View style={{ alignItems: 'center', marginHorizontal: 10 }}>
-                                        <Text style={{ fontSize: 20, textAlign: 'center', fontFamily: 'Trebuchet MS' }}>How Would you like to travel by road?</Text>
+                                        <Text style={{ fontSize: 20, textAlign: 'center', fontFamily: 'Trebuchet MS' }}>How Would you like to travel by road?*</Text>
                                         <RadioButtonRN
                                             data={this.state.allVehicles}
                                             textStyle={{ fontSize: 17, textAlign: 'center' }}
                                             style={{ width: '100%', marginTop: 30 }}
                                             selectedBtn={(e) => {
+                                                if(e==null){
+                                                    this.setState({'vehicleValidation':'Please select vehicle type'})
+                                                }
                                                 console.log("Value set to milage and vehicle", e);
                                                 this.setState({ 'VehicleType': e.label })
+                                                
+                                                this.setState({'vehicleValidation':''})
                                                 this.setState({ 'milage': e.milage })
                                             }
                                             }
 
                                         />
+                                         <Text style={{ fontSize: 10, color: 'red', fontFamily: 'Trebuchet MS' }}>{this.state.vehicleValidation}</Text>
                                     </View>
                                 </ProgressStep>
-                                <ProgressStep nextBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} previousBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} label="Stay">
+                                <ProgressStep nextBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} nextBtnDisabled={this.state.NoOfNights==0||isNaN(this.state.NoOfNights)?true : false} previousBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} label="Stay">
                                     <View style={{ alignItems: 'center', marginHorizontal: 10 }}>
                                         <Text style={{ fontSize: 20, textAlign: 'center', fontFamily: 'Trebuchet MS' }}>How many nights would you like on your trip? *</Text>
                                         <Input keyboardType='number-pad' type="text" style={{ marginTop: 30 }} value={this.state.NoOfNights} onChangeText={(value) => {
                                             this.setState({ 'NoOfNights': value })
+                                            if(isNaN(value)){
+                                                this.setState({'nightValidation':'Please enter a valid number'})
+                                            }else{
+                                                this.setState({'nightValidation':''})
+                                            }
                                         }}
                                             placeholder='Type your answer here...'
                                         />
                                     </View>
+                                        <Text style={{ fontSize: 10, color: 'red', fontFamily: 'Trebuchet MS' }}>{this.state.nightValidation}</Text>
+                                       
                                 </ProgressStep>
-                                <ProgressStep nextBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} previousBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} label="Rooms"  >
+                                <ProgressStep nextBtnDisabled={this.state.NoOfRooms==0||isNaN(this.state.NoOfRooms)?true : false} nextBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} previousBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} label="Rooms"  >
                                     <View style={{ alignItems: 'center', marginHorizontal: 10 }}>
                                         <Text style={{ fontSize: 20, textAlign: 'center', fontFamily: 'Trebuchet MS' }}>How many rooms would you like to book? *</Text>
                                     </View>
                                     <Input type="number" keyboardType='number-pad' style={{ marginTop: 30 }} value={this.state.NoOfRooms} onChangeText={(value) => {
                                         this.setState({ 'NoOfRooms': value })
+                                        if(isNaN(value)){
+                                            this.setState({'roomValidation':'Please enter a valid number'})
+                                        }else{
+                                            this.setState({'roomValidation':''})
+                                        }
                                     }}
                                         placeholder='Type your answer here...'
                                     />
+                                     <Text style={{ fontSize: 10, color: 'red', fontFamily: 'Trebuchet MS' }}>{this.state.nightValidation}</Text>
                                 </ProgressStep>
-                                <ProgressStep nextBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} previousBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} label="Name"  >
+
+
+                                <ProgressStep nextBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} nextBtnDisabled={this.state.username==''?true : false} nextBtnText={this.isLoggedInUser ? 'Skip' : 'Next'} previousBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} label="Name"   >
                                     <View style={{ alignItems: 'center', marginHorizontal: 10 }}>
-                                        <Text style={{ fontSize: 20, textAlign: 'center', fontFamily: 'Trebuchet MS' }}>What's your name? *</Text>
+                                        <Text style={{ fontSize: 20, textAlign: 'center', fontFamily: 'Trebuchet MS' }}> {this.isLoggedInUser ? 'Already have user name Skip this step' : "What's your name? *"}</Text>
                                     </View>
-                                    <Input type="text" style={{ marginTop: 30 }} value={this.state.username} onChangeText={(value) => {
+                                    <Input type="text" style={{ marginTop: 30 }} value={this.state.username} disabled={this.state.isdisabled} onChangeText={(value) => {
                                         console.log(value)
                                         this.setState({ 'username': value })
                                     }}
                                         placeholder='Type your answer here...'
                                     />
                                 </ProgressStep>
-                                <ProgressStep nextBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} previousBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} label="Email"  >
+                                <ProgressStep nextBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} nextBtnDisabled={this.state.emailValidation!=''?true : false} nextBtnText={this.isLoggedInUser ? 'Skip' : 'Next'} previousBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} label="Email"  >
                                     <View style={{ alignItems: 'center', marginHorizontal: 10 }}>
-                                        <Text style={{ fontSize: 20, textAlign: 'center', fontFamily: 'Trebuchet MS' }}>What's your Email address *</Text>
+                                        <Text style={{ fontSize: 20, textAlign: 'center', fontFamily: 'Trebuchet MS' }}>{this.isLoggedInUser ? 'Email set already Skip this step' : 'Whats your email Address'}</Text>
                                     </View>
-                                    <Input type="text" style={{ marginTop: 30 }} value={this.state.email} onChangeText={(value) => {
+                                    <Input type="text" style={{ marginTop: 30 }} disabled={this.state.isdisabled} value={this.state.email} onChangeText={(value) => {
                                         this.validate(value)
                                     }}
                                         placeholder='ex: email@example.com...'
                                     />
                                     <Text style={{ fontSize: 10, color: 'red', fontFamily: 'Trebuchet MS' }}>{this.state.emailValidation}</Text>
                                 </ProgressStep>
-                                <ProgressStep onNext={this.handelRegister} nextBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} previousBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} label="Phone"  >
+
+                                <ProgressStep onNext={this.handelRegister} nextBtnDisabled={this.state.phone==''?true : false} nextBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} previousBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} label="Phone"  >
                                     <View style={{ alignItems: 'center', marginHorizontal: 10 }}>
                                         <Text style={{ fontSize: 20, textAlign: 'center', fontFamily: 'Trebuchet MS' }}>What's your phone number*</Text>
                                     </View>
@@ -405,7 +463,7 @@ class CreatePlan extends Component {
                                         this.setState({ 'phone': value })
                                         this.setState({ 'budget_1': SRatesMin + '-' + SRatesMax })
                                         this.setState({ 'budget_2': LRatesMin + '-' + LRatesMax })
-                                        this.setState({ 'budget_1': DRatesMin + '-' + DRatesMax })
+                                        this.setState({ 'budget_3': DRatesMin + '-' + DRatesMax })
                                     }} mask={[
                                         /\d/,
                                         /\d/,
@@ -423,92 +481,27 @@ class CreatePlan extends Component {
 
                                     </MaskInput>
                                 </ProgressStep>
+                                <ProgressStep nextBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} nextBtnDisabled={this.state.password==''&&!this.isLoggedInUser?true : false} nextBtnText={this.isLoggedInUser ? 'Skip' : 'Next'} previousBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} label="password"  >
+                                    <View style={{ alignItems: 'center', marginHorizontal: 10 }}>
+                                        <Text style={{ fontSize: 20, textAlign: 'center', fontFamily: 'Trebuchet MS' }}> {this.isLoggedInUser ? 'You are already logged in skip this step' : 'Create Password *'}</Text>
+                                    </View>
+                                    <Input type="text" secureTextEntry={true} style={{ marginTop: 30 }} disabled={this.state.isdisabled} value={this.state.password} onChangeText={(value) => {
+                                        this.setState({ 'password': value })
+                                        console.log(value)
+                                    }}
+                                        placeholder='Type your password here...'
+                                    />
+                                </ProgressStep>
                                 <ProgressStep nextBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} previousBtnTextStyle={{ fontSize: 20, color: '#fb5b5a' }} label="Calculate" onSubmit={this.handleSubmit} >
-                                    {/* <View style={{ alignItems: 'center', marginHorizontal: 10 }}> */}
-                                    {/* <Text style={{ fontSize: 20, textAlign: 'center', fontFamily: 'Trebuchet MS' }}>Your trip to {destination} have {NoOfRooms} room(s) for {NoOfNights} night(s) and traveling with {this.state.VehicleType} your budget will be: </Text>
-                                        
-                                        <View style={{ alignItems: 'center', marginTop: 30 }}>
-                                            {budgetData.map((l, i) => (
-                                                <ListItem style={{ width: width, }} key={i} bottomDivider>
-                                                    <ListItem.Content style={{ textAlign: 'center', alignItems: 'center' }} >
-                                                        <ListItem.Title style={{ fontSize: 18, textAlign: 'center' }}>{l.label}</ListItem.Title>
-                                                    </ListItem.Content>
-                                                </ListItem>
-                                            ))}
-                                        </View> */}
-                                    <DialogInput dialogIsVisible={isModalVisible}
-                                        title={"Would you like to save your Trip?"}
-                                        titleStyle={{ color: '#182166', fontSize: 22 }}
-                                        subtitle='Enter a password to register'
-                                        subTitleStyle={{ color: 'grey', fontSize: 17 }}
-                                        placeholderInput={"Type your password..."}
-                                        secureTextEntry={true}
-                                        textInputProps={{ secureTextEntry: true }}
-                                        textCancelStyle={{ color: '#fb5b5a', fontSize: 15 }}
-                                        submitTextStyle={{ color: '#fb5b5a', fontSize: 15 }}
-                                        textInputStyle={{
-                                            backgroundColor: '#fafafa',
-                                            borderBottomColor: 'white'
 
-                                        }}
-                                        submitInput={(inputText) => {
-
-                                            this.handleProceed(inputText)
-                                        }}
-                                        cancelButtonText="CANCEL"
-                                        submitButtonText="SAVE"
-                                        closeDialogInput={() => { this.setState({ 'isModalVisible': false }) }}>
-                                    </DialogInput>
-                                    {/* <Modal isVisible={isModalVisible} onBackdropPress={() => this.setState({ 'isModalVisible': false })}>
-                                        <View style={{ flex: 1, alignContent: 'center' }}>
-                                            <View style={{
-                                                height: 300, backgroundColor: 'white',
-                                                paddingVertical: '10%',
-                                                padding: 30,
-                                                borderBottomEndRadius: 50,
-                                                borderBottomStartRadius: 50,
-                                                borderTopEndRadius: 50,
-                                                borderTopStartRadius: 50
-                                            }} >
-                                                {
-                                                    this.state.errorMessage == "" ?
-                                                        (
-                                                            <View>
-
-                                                                <Text style={{ fontSize: 20, textAlign: 'center', fontFamily: 'Trebuchet MS' }}>To create an account please enter your password</Text>
-                                                                <Input type="password" secureTextEntry={true} style={{ marginTop: 30 }} value={this.state.password} onChangeText={(value) => {
-                                                                    this.setState({ 'password': value })
-                                                                }}
-                                                                    placeholder='Type password....'
-                                                                />
-                                                                <TouchableOpacity
-                                                                    onPress={this.handleProceed} disabled={false}>
-                                                                    <View style={{
-                                                                        height: 48,
-                                                                        flexDirection: 'row',
-                                                                        // width: width/8,
-                                                                        backgroundColor: "#fb5b5a",
-                                                                        borderRadius: 48 / 2,
-                                                                        justifyContent: 'center',
-                                                                        alignItems: 'center'
-                                                                    }}>
-                                                                        <Text style={{
-                                                                            fontSize: 20,
-                                                                            fontWeight: 'bold',
-                                                                            color: 'white',
-                                                                        }}>Proceed</Text>
-
-
-                                                                    </View>
-                                                                </TouchableOpacity>
-                                                            </View>
-                                                        ) : <Text style={{ fontSize: 25, color: 'red', textAlign: 'center', fontFamily: 'Trebuchet MS' }}>{this.state.errorMessage}</Text>
-                                                }
-
-                                            </View>
-
-                                        </View>
-                                    </Modal> */}
+                                    <Dialog.Container visible={isModalVisible}>
+                                        <Dialog.Title>Save Trip Info</Dialog.Title>
+                                        <Dialog.Description>
+                                            Do you want to Save this Trip? You cannot undo this action.
+                                        </Dialog.Description>
+                                        <Dialog.Button label="Cancel" onPress={() => { this.setState({ 'isModalVisible': false })}} />
+                                        <Dialog.Button label="Save" onPress={this.handleProceed} />
+                                    </Dialog.Container>
                                     <View >
                                         <Table borderStyle={{ borderWidth: 1 }}>
                                             <Row data={this.state.tableHead} flexArr={[1, 0.8, 0.5, 0.5, 2]} style={styles.head} textStyle={styles.text} />

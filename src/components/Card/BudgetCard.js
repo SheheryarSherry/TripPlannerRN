@@ -14,37 +14,22 @@ import { Icon } from 'react-native-elements'
 const windowWidth = Dimensions.get('window').width;
 const containerWidth = windowWidth - 48
 
-const PlanCardItem = ({ planData }) => {
+const BudgetCardItem = ({ planData }) => {
 
     const {
-        created_at,
-        from,
-        to,
-        room ,
+        budget,
+        type
         } = planData
-
+    const min = budget !=null ? budget.split('-')[0] : ''
+    const max = budget !=null ? budget.split('-')[1] : ''
     return (
         <View style={{
             // backgroundColor: btnColor,
-            width: containerWidth,
+            width: containerWidth /1.8,
             height: 150,
             marginBottom: 10
         }}>
-            <View style={{
-                flexDirection: 'row',
-                alignItems: 'center'
-            }}>
-                <View style={{
-                    width: 12,
-                    height: 12,
-                    borderRadius: 12 / 2,
-                    marginEnd: 12,
-                    backgroundColor: '#b0d1ff'
-                }}>
-
-                </View>
-                <TitleText text={'From '+from} size={14} />
-            </View>
+            
 
             <View style={{
                 flexDirection: 'row',
@@ -75,8 +60,9 @@ const PlanCardItem = ({ planData }) => {
                     <View style={
                         {
                             width: containerWidth / 2,
+                            flexDirection:'column',
                             height: 100,
-                            backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
                             position: 'absolute',
                             borderRadius: 10,
                             justifyContent: 'center',
@@ -84,39 +70,20 @@ const PlanCardItem = ({ planData }) => {
                         }}>
                         <Text style={{
                             color: 'white',
-                            fontSize: 24,
+                            fontSize: 19,
                             fontWeight: 'bold'
-                        }}>{to}</Text>
+                        }}>{type}</Text>
+                         <Text style={{
+                            color: 'white',
+                            fontSize: 15,
+                            fontWeight: 'bold'
+                        }}>PKR: {budget!=null?(Number(min).toFixed(0)+" - "+ Number(max).toFixed(0)):'--'}</Text>
                     </View>
+                    
+                       
                 </ImageBackground>
 
-                {/* Detail Plan */}
-                <View style={{
-                    flex: 1,
-                    marginStart: defaultPadding * 2,
-                    alignItems: 'flex-start',
-                }}>
-                    {/* PLACE TITLE */}
-                    <TitleText text={'Trip to '+to} size={18} />
-                    {/* PLACE TEXT */}
-                    <View style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        marginVertical: 5
-                    }}>
-                        <Icon name='hotel' size={14} color='#b1b1b1' />
-                        <SubtitleText isMarginLeft text={room+ (room<2?' Room':'Rooms')} size={14} />
-                    </View>
-                    {/* PHONE TEXT */}
-                    <View style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        marginVertical: 5
-                    }}>
-                        <Icon name="phone" size={14} color='#b1b1b1' />
-                        <SubtitleText isMarginLeft text={'+92 313-------'} size={14} />
-                    </View>
-                </View>
+           
             </View>
         </View>
         // <TouchableOpacity
@@ -126,6 +93,6 @@ const PlanCardItem = ({ planData }) => {
     )
 }
 
-export default PlanCardItem
+export default BudgetCardItem
 
 const styles = StyleSheet.create({})

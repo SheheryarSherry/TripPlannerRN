@@ -1,46 +1,80 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
-
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import API from '../../API/Api'
+import AsyncStorage from '@react-native-community/async-storage';
 export default class Login extends React.Component {
   constructor(props) {
     super(props);
-    this.state={
-      email:"",
-      password:""
+    this.state = {
+      email: "",
+      password: "",
+      token: "",
+      userId: "",
+      isloading: false
     }
+    this.handleLogin = this.handleLogin.bind(this)
   }
-  render(){
+  handleLogin() {
+    this.setState({ 'isloading': true })
+    API.Login({
+      email: this.state.email,
+      password: this.state.password,
+    }).then((res) => {
+      console.log(res.data)
+      if (res.data.message == 'login successfull') {
+        this.setState({ 'isloading': false })
+        AsyncStorage.setItem('userData', res.data.user.id.toString())
+        AsyncStorage.setItem('userToken', res.data.user.api_token).then((value)=>{
+         value ? '': this.props.navigation.navigate('Home') 
+        })
+        AsyncStorage.setItem('userEmail', res.data.user.email)
+        AsyncStorage.setItem('userName', res.data.user.name)
+      
+      }
+    })
+  }
+  handleChange(event) {
+    this.setState({ 'email': event.target.value })
+    console.log(event.target.value)
+  }
+  render() {
     return (
       <View style={styles.container}>
-        <Image style={{width:150,height:150}} source={require('../../assets/Soys-logo-png.png')} />
+        <Image style={{ width: 150, height: 150 }} source={require('../../assets/Soys-logo-png.png')} />
         <View style={styles.inputView} >
-          <TextInput  
+          <TextInput
             style={styles.inputText}
-            placeholder="Email..." 
+            placeholder="Email..."
             placeholderTextColor="#003f5c"
-            onChangeText={text => this.setState({email:text})}/>
+            onChangeText={text => this.setState({ 'email': text })} />
         </View>
         <View style={styles.inputView} >
-          <TextInput  
+          <TextInput
             secureTextEntry
             style={styles.inputText}
-            placeholder="Password..." 
+            placeholder="Password..."
             placeholderTextColor="#003f5c"
-            onChangeText={text => this.setState({password:text})}/>
+            onChangeText={text => this.setState({ 'password': text })} />
         </View>
         <TouchableOpacity>
           <Text style={styles.forgot}>Forgot Password?</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.loginBtn}>
-          <Text style={styles.loginText}>LOGIN</Text>
+        <TouchableOpacity style={styles.loginBtn} onPress={this.handleLogin}>
+          {
+            this.state.isloading ? <ActivityIndicator size="large" color='white' /> :
+              <Text style={styles.loginText}>LOGIN</Text>
+          }
         </TouchableOpacity>
-        <TouchableOpacity onPress={()=>{
+
+        <TouchableOpacity onPress={() => {
           this.props.navigation.navigate('Home')
         }}>
+
+
           <Text style={styles.continueText}>Continue without login</Text>
         </TouchableOpacity>
 
-  
+
       </View>
     );
   }
@@ -53,43 +87,43 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  logo:{
-    fontWeight:"bold",
-    fontSize:50,
-    color:"#fb5b5a",
-    marginBottom:40
+  logo: {
+    fontWeight: "bold",
+    fontSize: 50,
+    color: "#fb5b5a",
+    marginBottom: 40
   },
-  inputView:{
-    width:"80%",
-    backgroundColor:"#fafafa",
-    borderRadius:25,
-    height:50,
-    marginBottom:20,
-    justifyContent:"center",
-    padding:20
+  inputView: {
+    width: "80%",
+    backgroundColor: "#fafafa",
+    borderRadius: 25,
+    height: 50,
+    marginBottom: 20,
+    justifyContent: "center",
+    padding: 20
   },
-  inputText:{
-    height:50,
-    color:"#5d5d5d"
+  inputText: {
+    height: 50,
+    color: "#5d5d5d"
   },
-  forgot:{
-    color:"#5d5d5d",
-    fontSize:11
+  forgot: {
+    color: "#5d5d5d",
+    fontSize: 11
   },
-  loginBtn:{
-    width:"80%",
-    backgroundColor:"#fb5b5a",
-    borderRadius:25,
-    height:50,
-    alignItems:"center",
-    justifyContent:"center",
-    marginTop:40,
-    marginBottom:10
+  loginBtn: {
+    width: "80%",
+    backgroundColor: "#fb5b5a",
+    borderRadius: 25,
+    height: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 40,
+    marginBottom: 10
   },
-  loginText:{
-    color:"white"
+  loginText: {
+    color: "white"
   },
-  continueText:{
-    color:"#5d5d5d"
+  continueText: {
+    color: "#5d5d5d"
   }
 });
